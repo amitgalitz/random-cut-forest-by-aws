@@ -20,8 +20,8 @@ import lombok.Getter;
 @Getter
 public enum V2TRCFJsonResource {
 
-    TRCF_1("state_1.json"), TRCF_2("state_2.json");
-
+//    TRCF_1("state_1.json"), TRCF_2("state_2.json")
+      TRCF_3("state_3.json");
     private final String resource;
 
     V2TRCFJsonResource(String resource) {

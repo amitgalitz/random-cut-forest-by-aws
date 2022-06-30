@@ -15,6 +15,7 @@
 
 package com.amazon.randomcutforest.parkservices.state;
 
+import com.amazon.randomcutforest.parkservices.AnomalyDescriptor;
 import com.amazon.randomcutforest.parkservices.ThresholdedRandomCutForest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -49,12 +50,41 @@ public class V2TRCFToV3StateConverterTest {
         mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         ThresholdedRandomCutForestState state = mapper.readValue(json, ThresholdedRandomCutForestState.class);
         ThresholdedRandomCutForest forest = trcfMapper.toModel(state);
-        Random r = new Random(0);
-        for (int i = 0; i < 200000; i++) {
-            double[] point = r.ints(forest.getForest().getDimensions(), 0, 50).asDoubleStream().toArray();
-            forest.process(point, 0L);
-        }
+//        Random r = new Random(0);
+//        for (int i = 0; i < 200000; i++) {
+//            double[] point = r.ints(forest.getForest().getDimensions(), 0, 50).asDoubleStream().toArray();
+//            forest.process(point, 0L);
+//        }
         assertNotNull(forest);
+    }
+
+    @ParameterizedTest
+    @EnumSource(V2TRCFJsonResource.class)
+    public void testJsonScalability(V2TRCFJsonResource jsonResource) throws JsonProcessingException{
+        String json = getStateFromFile(jsonResource.getResource());
+        assertNotNull(json);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        ThresholdedRandomCutForestState state = mapper.readValue(json, ThresholdedRandomCutForestState.class);
+        ThresholdedRandomCutForest forest = trcfMapper.toModel(state);
+
+        AnomalyDescriptor result = forest.process(new double[] { 41.77407537048962 }, 0L);
+        assertNotNull(forest);
+
+//
+//        ThresholdedRandomCutForestMapper mapper = new ThresholdedRandomCutForestMapper();
+//        ThresholdedRandomCutForest second = mapper.toModel(mapper.toState(forest));
+//
+//        for (double dataPoint : data) {
+//            AnomalyDescriptor result = second.process(new double[] { dataPoint }, 0L);
+//            System.out.println("result post conversion: " + result.getRCFScore());
+//        }
+//
+//        Random r = new Random(0);
+//        for (int i = 0; i < 200000; i++) {
+//            double[] point = r.ints(forest.getForest().getDimensions(), 0, 50).asDoubleStream().toArray();
+//            forest.process(point, 0L);
+//        }
     }
 
     @ParameterizedTest
